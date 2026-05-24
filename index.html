@@ -6,67 +6,57 @@
 <title>Tennis Tracker</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap');
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #f5f0e8; --court: #4a7c59; --net: #2c4a38; --chalk: #fffef9;
-  --ink: #1a1a1a; --muted: #8a8070; --in: #4a7c59; --in-bg: #e8f2eb;
-  --out: #c0392b; --out-bg: #faecea; --maybe: #d4811a; --maybe-bg: #fdf3e3;
-  --pending-bg: #ede8de;
-}
-body { font-family: "DM Mono", monospace; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 20px 16px 40px; }
-header { text-align: center; margin-bottom: 28px; }
-h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: 2rem; color: var(--net); letter-spacing: -0.5px; }
-.subtitle { font-size: 0.72rem; color: var(--muted); margin-top: 4px; letter-spacing: 0.08em; text-transform: uppercase; }
-.scorebar { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
-.score-pill { flex: 1; max-width: 100px; border-radius: 8px; padding: 10px 6px; text-align: center; }
-.score-pill .num { font-family: "Fraunces", serif; font-size: 1.8rem; font-weight: 600; line-height: 1; }
-.score-pill .lbl { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; opacity: 0.8; }
-.pill-in { background: var(--in-bg); color: var(--in); }
-.pill-out { background: var(--out-bg); color: var(--out); }
-.pill-maybe { background: var(--maybe-bg); color: var(--maybe); }
-.pill-pending { background: var(--pending-bg); color: var(--muted); }
-.week-label { text-align: center; font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 16px; }
-.msg-section { background: var(--chalk); border: 1.5px solid #ddd8cc; border-radius: 12px; padding: 14px; margin-bottom: 20px; }
-.msg-section h3 { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-.msg-box { font-family: "DM Mono", monospace; font-size: 0.82rem; line-height: 1.5; background: var(--bg); border: 1.5px solid #ddd8cc; border-radius: 8px; padding: 12px; white-space: pre-wrap; word-break: break-word; color: var(--ink); }
-.copy-btn { font-family: "DM Mono", monospace; font-size: 0.72rem; padding: 7px 14px; background: var(--bg); color: var(--court); border: 1.5px solid var(--court); border-radius: 8px; cursor: pointer; margin-top: 10px; letter-spacing: 0.04em; }
-.copy-btn:active { background: var(--court); color: white; }
-.add-section { background: var(--chalk); border: 1.5px solid #ddd8cc; border-radius: 12px; padding: 14px; margin-bottom: 20px; }
-.add-section h3 { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-.add-row { display: flex; gap: 8px; }
-input[type="text"] { flex: 1; font-family: "DM Mono", monospace; font-size: 0.85rem; padding: 9px 12px; border: 1.5px solid #ddd8cc; border-radius: 8px; background: var(--bg); color: var(--ink); outline: none; }
-input[type="text"]:focus { border-color: var(--court); }
-.btn-add { font-family: "DM Mono", monospace; font-size: 0.82rem; padding: 9px 16px; background: var(--court); color: white; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap; }
-.filters { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-.ftab { font-family: "DM Mono", monospace; font-size: 0.68rem; padding: 5px 12px; border-radius: 20px; border: 1.5px solid #ddd8cc; background: var(--chalk); cursor: pointer; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
-.ftab.active { background: var(--net); color: white; border-color: var(--net); }
-.section-title { font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-.player-list { display: flex; flex-direction: column; gap: 8px; }
-.player-card { background: var(--chalk); border: 1.5px solid #ddd8cc; border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
-.player-card.status-in { border-color: var(--in); background: var(--in-bg); }
-.player-card.status-out { border-color: var(--out); background: var(--out-bg); }
-.player-card.status-maybe { border-color: var(--maybe); background: var(--maybe-bg); }
-.player-name { flex: 1; font-size: 0.9rem; font-weight: 500; }
-.status-btns { display: flex; gap: 5px; }
-.sbtn { font-family: "DM Mono", monospace; font-size: 0.68rem; padding: 5px 9px; border-radius: 6px; border: 1.5px solid transparent; cursor: pointer; font-weight: 500; }
-.sbtn-in { background: #d4ead9; color: var(--in); border-color: #b8d9be; }
-.sbtn-maybe { background: #fce8c8; color: var(--maybe); border-color: #f0d0a0; }
-.sbtn-out { background: #f5d4d0; color: var(--out); border-color: #e8b8b2; }
-.sbtn.active-in { background: var(--in); color: white; border-color: var(--in); }
-.sbtn.active-maybe { background: var(--maybe); color: white; border-color: var(--maybe); }
-.sbtn.active-out { background: var(--out); color: white; border-color: var(--out); }
-.del-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1rem; padding: 2px 4px; line-height: 1; }
-.del-btn:active { color: var(--out); }
-.empty-msg { text-align: center; color: var(--muted); font-size: 0.78rem; padding: 24px 0; }
-.actions { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-.btn-reset { font-family: "DM Mono", monospace; font-size: 0.72rem; padding: 8px 16px; background: none; color: var(--muted); border: 1.5px solid #ddd8cc; border-radius: 8px; cursor: pointer; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f5f0e8;--court:#4a7c59;--net:#2c4a38;--chalk:#fffef9;--ink:#1a1a1a;--muted:#8a8070;--in:#4a7c59;--in-bg:#e8f2eb;--out:#c0392b;--out-bg:#faecea;--maybe:#d4811a;--maybe-bg:#fdf3e3;--pending-bg:#ede8de}
+body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--ink);min-height:100vh;padding:20px 16px 40px}
+header{text-align:center;margin-bottom:28px}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:2rem;color:var(--net);letter-spacing:-0.5px}
+.subtitle{font-size:0.72rem;color:var(--muted);margin-top:4px;letter-spacing:0.08em;text-transform:uppercase}
+.scorebar{display:flex;gap:10px;margin-bottom:20px;justify-content:center}
+.score-pill{flex:1;max-width:100px;border-radius:8px;padding:10px 6px;text-align:center}
+.score-pill .num{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:600;line-height:1}
+.score-pill .lbl{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;margin-top:3px;opacity:0.8}
+.pill-in{background:var(--in-bg);color:var(--in)}
+.pill-out{background:var(--out-bg);color:var(--out)}
+.pill-maybe{background:var(--maybe-bg);color:var(--maybe)}
+.pill-pending{background:var(--pending-bg);color:var(--muted)}
+.week-label{text-align:center;font-size:0.72rem;color:var(--muted);letter-spacing:0.06em;margin-bottom:16px}
+.msg-section,.add-section{background:var(--chalk);border:1.5px solid #ddd8cc;border-radius:12px;padding:14px;margin-bottom:20px}
+.msg-section h3,.add-section h3{font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.msg-box{font-family:'DM Mono',monospace;font-size:0.82rem;line-height:1.5;background:var(--bg);border:1.5px solid #ddd8cc;border-radius:8px;padding:12px;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+.copy-btn{font-family:'DM Mono',monospace;font-size:0.72rem;padding:7px 14px;background:var(--bg);color:var(--court);border:1.5px solid var(--court);border-radius:8px;cursor:pointer;margin-top:10px;letter-spacing:0.04em}
+.copy-btn:active{background:var(--court);color:white}
+.add-row{display:flex;gap:8px}
+input[type="text"]{flex:1;font-family:'DM Mono',monospace;font-size:0.85rem;padding:9px 12px;border:1.5px solid #ddd8cc;border-radius:8px;background:var(--bg);color:var(--ink);outline:none}
+input[type="text"]:focus{border-color:var(--court)}
+.btn-add{font-family:'DM Mono',monospace;font-size:0.82rem;padding:9px 16px;background:var(--court);color:white;border:none;border-radius:8px;cursor:pointer;white-space:nowrap}
+.filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.ftab{font-family:'DM Mono',monospace;font-size:0.68rem;padding:5px 12px;border-radius:20px;border:1.5px solid #ddd8cc;background:var(--chalk);cursor:pointer;letter-spacing:0.04em;text-transform:uppercase;color:var(--muted)}
+.ftab.active{background:var(--net);color:white;border-color:var(--net)}
+.section-title{font-size:0.66rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.player-list{display:flex;flex-direction:column;gap:8px}
+.player-card{background:var(--chalk);border:1.5px solid #ddd8cc;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.player-card.status-in{border-color:var(--in);background:var(--in-bg)}
+.player-card.status-out{border-color:var(--out);background:var(--out-bg)}
+.player-card.status-maybe{border-color:var(--maybe);background:var(--maybe-bg)}
+.player-name{flex:1;font-size:0.9rem;font-weight:500}
+.status-btns{display:flex;gap:5px}
+.sbtn{font-family:'DM Mono',monospace;font-size:0.68rem;padding:5px 9px;border-radius:6px;border:1.5px solid transparent;cursor:pointer;font-weight:500}
+.sbtn-in{background:#d4ead9;color:var(--in);border-color:#b8d9be}
+.sbtn-maybe{background:#fce8c8;color:var(--maybe);border-color:#f0d0a0}
+.sbtn-out{background:#f5d4d0;color:var(--out);border-color:#e8b8b2}
+.sbtn.active-in{background:var(--in);color:white;border-color:var(--in)}
+.sbtn.active-maybe{background:var(--maybe);color:white;border-color:var(--maybe)}
+.sbtn.active-out{background:var(--out);color:white;border-color:var(--out)}
+.del-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:1rem;padding:2px 4px;line-height:1}
+.del-btn:active{color:var(--out)}
+.empty-msg{text-align:center;color:var(--muted);font-size:0.78rem;padding:24px 0}
+.actions{display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap}
+.btn-reset{font-family:'DM Mono',monospace;font-size:0.72rem;padding:8px 16px;background:none;color:var(--muted);border:1.5px solid #ddd8cc;border-radius:8px;cursor:pointer}
 </style>
 </head>
 <body>
-<header>
-  <h1>🎾 Wednesday Tennis</h1>
-  <div class="subtitle">7:00 AM · Weekly Tracker</div>
-</header>
+<header><h1>🎾 Wednesday Tennis</h1><div class="subtitle">7:00 AM · Weekly Tracker</div></header>
 <div class="scorebar">
   <div class="score-pill pill-in"><div class="num" id="cnt-in">0</div><div class="lbl">In</div></div>
   <div class="score-pill pill-maybe"><div class="num" id="cnt-maybe">0</div><div class="lbl">Maybe</div></div>
@@ -75,21 +65,21 @@ input[type="text"]:focus { border-color: var(--court); }
 </div>
 <div class="week-label" id="week-label"></div>
 <div class="msg-section">
-  <h3>📱 Your Weekly Text</h3>
+  <h3>Your Weekly Text</h3>
   <div class="msg-box" id="msg-preview"></div>
   <button class="copy-btn" onclick="copyMsg()">Copy to clipboard</button>
 </div>
 <div class="add-section">
   <h3>Add a Player</h3>
   <div class="add-row">
-    <input type="text" id="name-input" placeholder="New player name..." onkeydown="if(event.key==='Enter') addOne()">
+    <input type="text" id="name-input" placeholder="New player name..." onkeydown="if(event.key==='Enter')addOne()">
     <button class="btn-add" onclick="addOne()">+ Add</button>
   </div>
 </div>
 <div class="filters">
   <button class="ftab active" onclick="setFilter('all',this)">All</button>
   <button class="ftab" onclick="setFilter('pending',this)">Waiting</button>
-  <button class="ftab" onclick="setFilter('in',this)">In ✓</button>
+  <button class="ftab" onclick="setFilter('in',this)">In</button>
   <button class="ftab" onclick="setFilter('maybe',this)">Maybe</button>
   <button class="ftab" onclick="setFilter('out',this)">Out</button>
 </div>
@@ -101,147 +91,40 @@ input[type="text"]:focus { border-color: var(--court); }
   <button class="btn-reset" onclick="clearAll()">Clear all players</button>
 </div>
 <script>
-var TRACKER_LINK = "https://boatcarpet.github.io/tennis-tracker/";
-
-var DEFAULT_PLAYERS = [
-  "James Moran","Jeffrey Stafeil","Michael Fishman","Peter G. Root",
-  "Mitch Black","Mats Elmaster","Arnaud Mangin","Steven Schimpke",
-  "Ken Sachs","Jim Lareau","Jim Dyla","John Ford",
-  "Paul Mareski","Jeff Drejza","Andy Rifkin","Jim Johns",
-  "Player 17","Player 18","Player 19","Player 20","Player 21"
-];
-
-function loadPlayers() {
-  try {
-    var saved = localStorage.getItem("tennis_v4");
-    if (saved) return JSON.parse(saved);
-  } catch(e) {}
-  return DEFAULT_PLAYERS.map(function(name, i) {
-    return { id: i + 1, name: name, status: "pending" };
-  });
-}
-
-var players = loadPlayers();
-var currentFilter = "all";
-
-function save() {
-  try { localStorage.setItem("tennis_v4", JSON.stringify(players)); } catch(e) {}
-}
-
-function nextWednesday() {
-  var now = new Date();
-  var day = now.getDay();
-  var daysUntil = (3 - day + 7) % 7;
-  if (daysUntil === 0) daysUntil = 7;
-  var wed = new Date(now);
-  wed.setDate(now.getDate() + daysUntil);
-  return wed.toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
-}
-
-function updateWeekLabel() {
-  document.getElementById("week-label").textContent = "Next up: " + nextWednesday();
-}
-
-function updateMessage() {
-  var msg = "Hey team! Tennis this Wednesday (" + nextWednesday() + ") at 7am!
-
-Are you IN, MAYBE, or OUT? Tap here to reply:
-" + TRACKER_LINK + "
-
-Takes 5 seconds. See you on the court!";
-  document.getElementById("msg-preview").textContent = msg;
-}
-
-function copyMsg() {
-  var text = document.getElementById("msg-preview").textContent;
-  navigator.clipboard.writeText(text).then(function() {
-    var btn = document.querySelector(".copy-btn");
-    btn.textContent = "Copied!";
-    setTimeout(function() { btn.textContent = "Copy to clipboard"; }, 2000);
-  });
-}
-
-function updateCounts() {
-  var c = { "in":0, "out":0, "maybe":0, "pending":0 };
-  players.forEach(function(p) { c[p.status]++; });
-  document.getElementById("cnt-in").textContent = c["in"];
-  document.getElementById("cnt-out").textContent = c["out"];
-  document.getElementById("cnt-maybe").textContent = c["maybe"];
-  document.getElementById("cnt-pending").textContent = c["pending"];
-}
-
-function setFilter(f, el) {
-  currentFilter = f;
-  document.querySelectorAll(".ftab").forEach(function(t) { t.classList.remove("active"); });
-  el.classList.add("active");
+var LINK="https://boatcarpet.github.io/tennis-tracker/";
+var NAMES=["Sandeep Badhwar","Mitch Black","Jeff Drejza","Jim Dyla","Mats Elmaster","Michael Fishman","John Ford","Jeffery Imerman","Jim Johns","Nick Junttila","Jim Lareau","Arnaud Mangin","Paul Mareski","Kevin Meade","James Moran","Michael Ouaknine","Andy Rifkin","Peter G. Root","Ken Sachs","Steven Schimpke","Jeffrey Stafeil"];
+function load(){try{var s=localStorage.getItem("tw5");if(s)return JSON.parse(s);}catch(e){}return NAMES.map(function(n,i){return{id:i+1,name:n,status:"pending"};});}
+var players=load();
+var filter="all";
+function save(){try{localStorage.setItem("tw5",JSON.stringify(players));}catch(e){}}
+function nextWed(){var d=new Date();var n=(3-d.getDay()+7)%7||7;var w=new Date(d);w.setDate(d.getDate()+n);return w.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});}
+function init(){
+  document.getElementById("week-label").textContent="Next up: "+nextWed();
+  document.getElementById("msg-preview").textContent="Hey team! Tennis this Wednesday ("+nextWed()+") at 7am!\n\nTap here to say IN, MAYBE or OUT:\n"+LINK+"\n\nTakes 5 seconds. See you on the court!";
   render();
 }
-
-function setStatus(id, status) {
-  var p = players.find(function(p) { return p.id === id; });
-  if (!p) return;
-  p.status = (p.status === status) ? "pending" : status;
-  save();
-  render();
-}
-
-function deletePlayer(id) {
-  if (!confirm("Remove this player?")) return;
-  players = players.filter(function(p) { return p.id !== id; });
-  save();
-  render();
-}
-
-function render() {
-  updateCounts();
-  var filtered = (currentFilter === "all") ? players : players.filter(function(p) { return p.status === currentFilter; });
-  var titles = { "all":"All Players", "pending":"Waiting for Reply", "in":"Playing", "out":"Can Not Make It", "maybe":"Maybe" };
-  document.getElementById("list-title").textContent = titles[currentFilter] + " (" + filtered.length + ")";
-  var empty = document.getElementById("empty-msg");
-  var list = document.getElementById("player-list");
-  if (filtered.length === 0) { list.innerHTML = ""; empty.style.display = "block"; return; }
-  empty.style.display = "none";
-  list.innerHTML = filtered.map(function(p) {
-    return "<div class='player-card status-" + p.status + "'>" +
-      "<div class='player-name'>" + p.name + "</div>" +
-      "<div class='status-btns'>" +
-      "<button class='sbtn sbtn-in " + (p.status==="in" ? "active-in" : "") + "' onclick='setStatus(" + p.id + ","in")'>IN</button>" +
-      "<button class='sbtn sbtn-maybe " + (p.status==="maybe" ? "active-maybe" : "") + "' onclick='setStatus(" + p.id + ","maybe")'>?</button>" +
-      "<button class='sbtn sbtn-out " + (p.status==="out" ? "active-out" : "") + "' onclick='setStatus(" + p.id + ","out")'>OUT</button>" +
-      "</div>" +
-      "<button class='del-btn' onclick='deletePlayer(" + p.id + ")'>x</button>" +
-      "</div>";
+function copyMsg(){navigator.clipboard.writeText(document.getElementById("msg-preview").textContent).then(function(){var b=document.querySelector(".copy-btn");b.textContent="Copied!";setTimeout(function(){b.textContent="Copy to clipboard";},2000);});}
+function counts(){var c={in:0,out:0,maybe:0,pending:0};players.forEach(function(p){c[p.status]++;});document.getElementById("cnt-in").textContent=c.in;document.getElementById("cnt-out").textContent=c.out;document.getElementById("cnt-maybe").textContent=c.maybe;document.getElementById("cnt-pending").textContent=c.pending;}
+function setFilter(f,el){filter=f;document.querySelectorAll(".ftab").forEach(function(t){t.classList.remove("active");});el.classList.add("active");render();}
+function setStatus(id,st){var p=players.find(function(x){return x.id===id;});if(!p)return;p.status=(p.status===st)?"pending":st;save();render();}
+function delPlayer(id){if(!confirm("Remove player?"))return;players=players.filter(function(x){return x.id!==id;});save();render();}
+function render(){
+  counts();
+  var list=filter==="all"?players:players.filter(function(p){return p.status===filter;});
+  var titles={all:"All Players",pending:"Waiting for Reply",in:"Playing",out:"Can Not Make It",maybe:"Maybe"};
+  document.getElementById("list-title").textContent=titles[filter]+" ("+list.length+")";
+  var empty=document.getElementById("empty-msg");
+  var el=document.getElementById("player-list");
+  if(list.length===0){el.innerHTML="";empty.style.display="block";return;}
+  empty.style.display="none";
+  el.innerHTML=list.map(function(p){
+    return "<div class='player-card status-"+p.status+"'><div class='player-name'>"+p.name+"</div><div class='status-btns'><button class='sbtn sbtn-in "+(p.status==="in"?"active-in":"")+"' onclick='setStatus("+p.id+","in")'>IN</button><button class='sbtn sbtn-maybe "+(p.status==="maybe"?"active-maybe":"")+"' onclick='setStatus("+p.id+","maybe")'>?</button><button class='sbtn sbtn-out "+(p.status==="out"?"active-out":"")+"' onclick='setStatus("+p.id+","out")'>OUT</button></div><button class='del-btn' onclick='delPlayer("+p.id+")'>x</button></div>";
   }).join("");
 }
-
-function addOne() {
-  var input = document.getElementById("name-input");
-  var name = input.value.trim();
-  if (!name) return;
-  players.push({ id: Date.now(), name: name, status: "pending" });
-  save();
-  render();
-  input.value = "";
-  input.focus();
-}
-
-function resetStatuses() {
-  if (!confirm("Reset all replies for a new week?")) return;
-  players.forEach(function(p) { p.status = "pending"; });
-  save();
-  render();
-}
-
-function clearAll() {
-  if (!confirm("Remove all players? This cannot be undone.")) return;
-  players = [];
-  save();
-  render();
-}
-
-updateWeekLabel();
-updateMessage();
-render();
+function addOne(){var inp=document.getElementById("name-input");var n=inp.value.trim();if(!n)return;players.push({id:Date.now(),name:n,status:"pending"});save();render();inp.value="";inp.focus();}
+function resetStatuses(){if(!confirm("Reset all replies for new week?"))return;players.forEach(function(p){p.status="pending";});save();render();}
+function clearAll(){if(!confirm("Remove ALL players? Cannot be undone."))return;players=[];save();render();}
+init();
 </script>
 </body>
   </html>
