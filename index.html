@@ -1,1 +1,115 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Tennis Tracker</title><style>*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#f5f0e8;--court:#4a7c59;--net:#2c4a38;--chalk:#fffef9;--ink:#1a1a1a;--muted:#8a8070;--in:#4a7c59;--in-bg:#e8f2eb;--out:#c0392b;--out-bg:#faecea;--maybe:#d4811a;--maybe-bg:#fdf3e3;--pending-bg:#ede8de}body{font-family:monospace;background:var(--bg);color:var(--ink);min-height:100vh;padding:20px 16px 40px}header{text-align:center;margin-bottom:28px}h1{font-size:2rem;color:var(--net)}.sub{font-size:.72rem;color:var(--muted);margin-top:4px;text-transform:uppercase}.bar{display:flex;gap:10px;margin-bottom:20px;justify-content:center}.pill{flex:1;max-width:100px;border-radius:8px;padding:10px 6px;text-align:center}.num{font-size:1.8rem;font-weight:600;line-height:1}.lbl{font-size:.62rem;text-transform:uppercase;margin-top:3px;opacity:.8}.p-in{background:var(--in-bg);color:var(--in)}.p-out{background:var(--out-bg);color:var(--out)}.p-maybe{background:var(--maybe-bg);color:var(--maybe)}.p-pend{background:var(--pending-bg);color:var(--muted)}.wk{text-align:center;font-size:.72rem;color:var(--muted);margin-bottom:16px}.sec{background:var(--chalk);border:1.5px solid #ddd8cc;border-radius:12px;padding:14px;margin-bottom:20px}.sec h3{font-size:.68rem;text-transform:uppercase;color:var(--muted);margin-bottom:10px}.msg{font-size:.82rem;line-height:1.5;background:var(--bg);border:1.5px solid #ddd8cc;border-radius:8px;padding:12px;white-space:pre-wrap;word-break:break-word}.cbtn{font-size:.72rem;padding:7px 14px;background:var(--bg);color:var(--court);border:1.5px solid var(--court);border-radius:8px;cursor:pointer;margin-top:10px}.cbtn:active{background:var(--court);color:white}.arow{display:flex;gap:8px}input{flex:1;font-size:.85rem;padding:9px 12px;border:1.5px solid #ddd8cc;border-radius:8px;background:var(--bg);color:var(--ink);outline:none}input:focus{border-color:var(--court)}.add{font-size:.82rem;padding:9px 16px;background:var(--court);color:white;border:none;border-radius:8px;cursor:pointer}.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}.tab{font-size:.68rem;padding:5px 12px;border-radius:20px;border:1.5px solid #ddd8cc;background:var(--chalk);cursor:pointer;text-transform:uppercase;color:var(--muted)}.tab.on{background:var(--net);color:white;border-color:var(--net)}.ttl{font-size:.66rem;text-transform:uppercase;color:var(--muted);margin-bottom:10px}.list{display:flex;flex-direction:column;gap:8px}.card{background:var(--chalk);border:1.5px solid #ddd8cc;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px}.card.s-in{border-color:var(--in);background:var(--in-bg)}.card.s-out{border-color:var(--out);background:var(--out-bg)}.card.s-maybe{border-color:var(--maybe);background:var(--maybe-bg)}.nm{flex:1;font-size:.9rem;font-weight:500}.bts{display:flex;gap:5px}.sb{font-size:.68rem;padding:5px 9px;border-radius:6px;border:1.5px solid transparent;cursor:pointer;font-weight:500}.si{background:#d4ead9;color:var(--in);border-color:#b8d9be}.sm{background:#fce8c8;color:var(--maybe);border-color:#f0d0a0}.so{background:#f5d4d0;color:var(--out);border-color:#e8b8b2}.ai{background:var(--in);color:white}.am{background:var(--maybe);color:white}.ao{background:var(--out);color:white}.del{background:none;border:none;color:#ccc;cursor:pointer;font-size:1rem;padding:2px 4px}.empty{text-align:center;color:var(--muted);font-size:.78rem;padding:24px 0}.acts{display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap}.rst{font-size:.72rem;padding:8px 16px;background:none;color:var(--muted);border:1.5px solid #ddd8cc;border-radius:8px;cursor:pointer}</style></head><body><header><h1>Tennis Tracker</h1><div class="sub">7:00 AM - Wednesday</div></header><div class="bar"><div class="pill p-in"><div class="num" id="ci">0</div><div class="lbl">In</div></div><div class="pill p-maybe"><div class="num" id="cm">0</div><div class="lbl">Maybe</div></div><div class="pill p-out"><div class="num" id="co">0</div><div class="lbl">Out</div></div><div class="pill p-pend"><div class="num" id="cp">0</div><div class="lbl">Waiting</div></div></div><div class="wk" id="wk"></div><div class="sec"><h3>Your Weekly Text</h3><div class="msg" id="msg"></div><button class="cbtn" onclick="copy()">Copy to clipboard</button></div><div class="sec"><h3>Add a Player</h3><div class="arow"><input id="ni" placeholder="New player name..."><button class="add" onclick="add()">+ Add</button></div></div><div class="tabs"><button class="tab on" onclick="filt('all',this)">All</button><button class="tab" onclick="filt('pending',this)">Waiting</button><button class="tab" onclick="filt('in',this)">In</button><button class="tab" onclick="filt('maybe',this)">Maybe</button><button class="tab" onclick="filt('out',this)">Out</button></div><div class="ttl" id="ttl"></div><div class="list" id="list"></div><div class="empty" id="emp" style="display:none">No players here.</div><div class="acts"><button class="rst" onclick="reset()">Reset replies (new week)</button><button class="rst" onclick="clr()">Clear all players</button></div><script>var URL="https://boatcarpet.github.io/tennis-tracker/";var NAMES=["Sandeep Badhwar","Mitch Black","Jeff Drejza","Jim Dyla","Mats Elmaster","Michael Fishman","John Ford","Jeffery Imerman","Jim Johns","Nick Junttila","Jim Lareau","Arnaud Mangin","Paul Mareski","Kevin Meade","James Moran","Michael Ouaknine","Andy Rifkin","Peter G. Root","Ken Sachs","Steven Schimpke","Jeffrey Stafeil"];function load(){try{var s=localStorage.getItem("tnv1");if(s)return JSON.parse(s);}catch(e){}return NAMES.map(function(n,i){return{id:i+1,name:n,status:"pending"};});}var P=load(),F="all";function sv(){try{localStorage.setItem("tnv1",JSON.stringify(P));}catch(e){}}function nw(){var d=new Date(),n=(3-d.getDay()+7)%7||7,w=new Date(d);w.setDate(d.getDate()+n);return w.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});}function cn(){var c={in:0,out:0,maybe:0,pending:0};P.forEach(function(p){c[p.status]++;});document.getElementById("ci").textContent=c.in;document.getElementById("co").textContent=c.out;document.getElementById("cm").textContent=c.maybe;document.getElementById("cp").textContent=c.pending;}function filt(f,el){F=f;document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("on");});el.classList.add("on");render();}function setSt(id,st){var p=P.find(function(x){return x.id===id;});if(!p)return;p.status=p.status===st?"pending":st;sv();render();}function del(id){if(!confirm("Remove?"))return;P=P.filter(function(x){return x.id!==id;});sv();render();}function mk(p){var d=document.createElement("div");d.className="card s-"+p.status;var nm=document.createElement("div");nm.className="nm";nm.textContent=p.name;d.appendChild(nm);var bt=document.createElement("div");bt.className="bts";[["in","IN","si","ai"],["maybe","?","sm","am"],["out","OUT","so","ao"]].forEach(function(a){var b=document.createElement("button");b.className="sb "+a[2]+(p.status===a[0]?" "+a[3]:"");b.textContent=a[1];(function(s){b.onclick=function(){setSt(p.id,s);};})(a[0]);bt.appendChild(b);});d.appendChild(bt);var x=document.createElement("button");x.className="del";x.textContent="x";x.onclick=function(){del(p.id);};d.appendChild(x);return d;}function render(){cn();var lst=F==="all"?P:P.filter(function(p){return p.status===F;});document.getElementById("ttl").textContent="Players ("+lst.length+")";var el=document.getElementById("list"),em=document.getElementById("emp");el.innerHTML="";if(lst.length===0){em.style.display="block";return;}em.style.display="none";lst.forEach(function(p){el.appendChild(mk(p));});}function add(){var n=document.getElementById("ni").value.trim();if(!n)return;P.push({id:Date.now(),name:n,status:"pending"});sv();render();document.getElementById("ni").value="";}function reset(){if(!confirm("Reset all replies?"))return;P.forEach(function(p){p.status="pending";});sv();render();}function clr(){if(!confirm("Remove ALL players?"))return;P=[];sv();render();}function copy(){navigator.clipboard.writeText(document.getElementById("msg").textContent);}document.getElementById("ni").onkeydown=function(e){if(e.key==="Enter")add();};var W=nw();document.getElementById("wk").textContent="Next up: "+W;document.getElementById("msg").textContent=["Hey team! Tennis this Wednesday ("+W+") at 7am!","","Tap here - say IN, MAYBE or OUT:",URL,"","See you on the court!"].join(String.fromCharCode(10));render();</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tennis Tracker</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f0eb; min-height: 100vh; }
+.container { max-width: 700px; margin: 0 auto; padding: 20px; }
+header { text-align: center; padding: 30px 0 20px; }
+header h1 { font-size: 2rem; color: #2d5016; }
+.subtitle { color: #666; font-size: 0.9rem; margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
+.stat-box { background: white; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.stat-num { font-size: 2rem; font-weight: 700; }
+.stat-label { font-size: 0.7rem; color: #999; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+.stat-in .stat-num { color: #2d7d46; }
+.stat-maybe .stat-num { color: #b8860b; }
+.stat-out .stat-num { color: #c0392b; }
+.stat-waiting .stat-num { color: #999; }
+.card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.section-title { font-size: 0.75rem; font-weight: 700; color: #666; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+.weekly-text-area { width: 100%; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #333; background: #fafafa; resize: none; min-height: 80px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 0.85rem; color: #444; }
+.btn:hover { background: #f0f0f0; }
+.btn-primary { background: #2d5016; color: white; border-color: #2d5016; }
+.btn-primary:hover { background: #1e3a0e; }
+.share-section { text-align: center; }
+.add-player-row { display: flex; gap: 10px; }
+.add-player-row input { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; outline: none; }
+.add-player-row input:focus { border-color: #2d5016; }
+.filter-tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.filter-tab { padding: 6px 14px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 0.8rem; color: #666; }
+.filter-tab.active { background: #2d5016; color: white; border-color: #2d5016; }
+.player-list { display: flex; flex-direction: column; gap: 6px; }
+.player-row { display: flex; align-items: center; padding: 10px 14px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; }
+.player-row.status-in { background: #f0faf3; border-color: #a8d5b5; }
+.player-row.status-maybe { background: #fffbf0; border-color: #f0d78c; }
+.player-row.status-out { background: #fdf5f5; border-color: #f0b8b8; }
+.player-name { flex: 1; font-size: 0.95rem; color: #333; }
+.status-btns { display: flex; gap: 6px; margin-right: 10px; }
+.status-btn { padding: 4px 12px; border-radius: 6px; border: 1px solid; cursor: pointer; font-size: 0.78rem; font-weight: 600; }
+.status-btn.in { border-color: #2d7d46; color: #2d7d46; background: white; }
+.status-btn.in.active { background: #2d7d46; color: white; }
+.status-btn.maybe { border-color: #b8860b; color: #b8860b; background: white; }
+.status-btn.maybe.active { background: #b8860b; color: white; }
+.status-btn.out { border-color: #c0392b; color: #c0392b; background: white; }
+.status-btn.out.active { background: #c0392b; color: white; }
+.remove-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.1rem; padding: 2px 4px; }
+.remove-btn:hover { color: #999; }
+.action-row { display: flex; gap: 10px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+@media (max-width: 500px) { .stats { grid-template-columns: repeat(2, 1fr); } .status-btn { padding: 4px 8px; font-size: 0.72rem; } }
+</style>
+</head>
+<body>
+<div class="container">
+<header><h1>&#127934; Wednesday Tennis</h1><div class="subtitle">7:00 AM &middot; Weekly Tracker</div></header>
+<div class="stats">
+<div class="stat-box stat-in"><div class="stat-num" id="count-in">0</div><div class="stat-label">IN</div></div>
+<div class="stat-box stat-maybe"><div class="stat-num" id="count-maybe">0</div><div class="stat-label">MAYBE</div></div>
+<div class="stat-box stat-out"><div class="stat-num" id="count-out">0</div><div class="stat-label">OUT</div></div>
+<div class="stat-box stat-waiting"><div class="stat-num" id="count-waiting">0</div><div class="stat-label">WAITING</div></div>
+</div>
+<div class="card">
+<div class="section-title">Your Weekly Text</div>
+<textarea class="weekly-text-area" id="weekly-text" readonly></textarea>
+<div style="margin-top:10px"><button class="btn" onclick="copyText()">Copy to clipboard</button></div>
+</div>
+<div class="card share-section">
+<div class="section-title" style="text-align:center">Share This Tracker</div>
+<button class="btn" onclick="copyLink()">Copy tracker link</button>
+</div>
+<div class="card">
+<div class="section-title">Add A Player</div>
+<div class="add-player-row">
+<input type="text" id="new-player" placeholder="New player name...">
+<button class="btn btn-primary" onclick="addPlayer()">+ Add</button>
+</div>
+</div>
+<div class="filter-tabs">
+<button class="filter-tab active" onclick="setFilter('all',this)">ALL</button>
+<button class="filter-tab" onclick="setFilter('waiting',this)">WAITING</button>
+<button class="filter-tab" onclick="setFilter('in',this)">IN</button>
+<button class="filter-tab" onclick="setFilter('maybe',this)">MAYBE</button>
+<button class="filter-tab" onclick="setFilter('out',this)">OUT</button>
+</div>
+<div class="player-list" id="player-list"></div>
+<div class="action-row">
+<button class="btn" onclick="resetReplies()">Reset replies (new week)</button>
+<button class="btn" onclick="clearPlayers()">Clear all players</button>
+</div>
+</div>
+<script>
+var P=["Sandeep Badhwar","Mitch Black","Jeff Drejza","Jim Dyla","Mats Elmaster","Michael Fishman","John Ford","Jeffery Imerman","Jim Johns","Nick Junttila","Jim Lareau","Arnaud Mangin","Paul Mareski","Kevin Meade","James Moran","Michael Ouaknine","Andy Rifkin","Peter G. Root","Ken Sachs","Steven Schimpke","Jeffrey Stafeil"];
+var F="all",players=[];
+function nW(){var d=new Date(),dy=d.getDay(),df=(3-dy+7)%7||7;d.setDate(d.getDate()+df);return d.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});}
+function uT(){var u=location.href.split("?")[0].split("#")[0];var nl="\n";document.getElementById("weekly-text").value="Hey everyone! Wednesday tennis this week ("+nW()+") at 7am!"+nl+"Tap here - say IN, MAYBE or OUT:"+nl+u+nl+nl+"See you on the court!";}
+function sv(){try{localStorage.setItem("tp",JSON.stringify(players));}catch(e){}}
+function ld(){try{var s=localStorage.getItem("tp");if(s){players=JSON.parse(s);return;}}catch(e){}players=P.map(function(n){return{name:n,status:"waiting"};});sv();}
+function ct(){var c={in:0,maybe:0,out:0,waiting:0};players.forEach(function(p){c[p.status]=(c[p.status]||0)+1;});["in","maybe","out","waiting"].forEach(function(s){document.getElementById("count-"+s).textContent=c[s]||0;});}
+function setFilter(f,btn){F=f;document.querySelectorAll(".filter-tab").forEach(function(b){b.classList.remove("active");});btn.classList.add("active");rn();}
+function rn(){var list=document.getElementById("player-list");list.innerHTML="";var fp=players.filter(function(p){return F==="all"||p.status===F;});fp.forEach(function(p){var idx=players.indexOf(p);var row=document.createElement("div");row.className="player-row status-"+p.status;var nd=document.createElement("div");nd.className="player-name";nd.textContent=p.name;var bd=document.createElement("div");bd.className="status-btns";["in","maybe","out"].forEach(function(s){var b=document.createElement("button");b.className="status-btn "+s+(p.status===s?" active":"");b.textContent=s==="in"?"IN":s==="maybe"?"?":"OUT";b.onclick=(function(i,st){return function(){ss(i,st);};})(idx,s);bd.appendChild(b);});var rb=document.createElement("button");rb.className="remove-btn";rb.innerHTML="&times;";rb.onclick=(function(i){return function(){rm(i);};})(idx);row.appendChild(nd);row.appendChild(bd);row.appendChild(rb);list.appendChild(row);});ct();}
+function ss(i,s){players[i].status=s;sv();rn();}
+function rm(i){players.splice(i,1);sv();rn();}
+function addPlayer(){var inp=document.getElementById("new-player"),n=inp.value.trim();if(!n)return;players.push({name:n,status:"waiting"});sv();inp.value="";rn();}
+function resetReplies(){if(!confirm("Reset all replies for new week?"))return;players.forEach(function(p){p.status="waiting";});sv();rn();}
+function clearPlayers(){if(!confirm("Remove all players?"))return;players=[];sv();rn();}
+function copyText(){var t=document.getElementById("weekly-text").value;if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){alert("Copied!");});}else{document.getElementById("weekly-text").select();document.execCommand("copy");alert("Copied!");}}
+function copyLink(){var u=location.href.split("?")[0].split("#")[0];if(navigator.clipboard){navigator.clipboard.writeText(u).then(function(){alert("Link copied!");});}else{alert(u);}}
+document.getElementById("new-player").addEventListener("keydown",function(e){if(e.key==="Enter")addPlayer();});
+ld();rn();uT();
+</script>
+</body>
+</html>
