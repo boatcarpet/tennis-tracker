@@ -1,38 +1,535 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Tennis Tracker</title>
-<style>* { box-sizing: border-box; margin: 0; padding: 0; }body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f0eb; min-height: 100vh; }.container { max-width: 700px; margin: 0 auto; padding: 20px; }header { text-align: center; padding: 30px 0 20px; }header h1 { font-size: 2rem; color: #2d5016; }.subtitle { color: #666; font-size: 0.9rem; margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }.stat-box { background: white; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }.stat-num { font-size: 2rem; font-weight: 700; }.stat-label { font-size: 0.7rem; color: #999; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }.stat-in .stat-num { color: #2d7d46; }.stat-maybe .stat-num { color: #b8860b; }.stat-out .stat-num { color: #c0392b; }.stat-waiting .stat-num { color: #999; }.status-bar { background: white; border-radius: 8px; padding: 10px 16px; margin-bottom: 12px; font-size: 0.8rem; color: #888; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }.status-bar.connected { color: #2d7d46; }.status-bar.disconnected { color: #c0392b; }.card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }.section-title { font-size: 0.75rem; font-weight: 700; color: #666; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }.weekly-text-area { width: 100%; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #333; background: #fafafa; resize: none; min-height: 80px; }.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 0.85rem; color: #444; }.btn:hover { background: #f0f0f0; }.btn-primary { background: #2d5016; color: white; border-color: #2d5016; }.share-section { text-align: center; }.add-player-row { display: flex; gap: 10px; }.add-player-row input { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; outline: none; }.filter-tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }.filter-tab { padding: 6px 14px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 0.8rem; color: #666; }.filter-tab.active { background: #2d5016; color: white; border-color: #2d5016; }.player-list { display: flex; flex-direction: column; gap: 6px; }.player-row { display: flex; align-items: center; padding: 10px 14px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; }.player-row.status-in { background: #f0faf3; border-color: #a8d5b5; }.player-row.status-maybe { background: #fffbf0; border-color: #f0d78c; }.player-row.status-out { background: #fdf5f5; border-color: #f0b8b8; }.player-name { flex: 1; font-size: 0.95rem; color: #333; }.status-btns { display: flex; gap: 6px; margin-right: 10px; }.status-btn { padding: 4px 12px; border-radius: 6px; border: 1px solid; cursor: pointer; font-size: 0.78rem; font-weight: 600; }.status-btn.in { border-color: #2d7d46; color: #2d7d46; background: white; }.status-btn.in.active { background: #2d7d46; color: white; }.status-btn.maybe { border-color: #b8860b; color: #b8860b; background: white; }.status-btn.maybe.active { background: #b8860b; color: white; }.status-btn.out { border-color: #c0392b; color: #c0392b; background: white; }.status-btn.out.active { background: #c0392b; color: white; }.remove-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.1rem; padding: 2px 4px; }.action-row { display: flex; gap: 10px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }@media (max-width: 500px) { .stats { grid-template-columns: repeat(2, 1fr); } .status-btn { padding: 4px 8px; font-size: 0.72rem; } }</style></head>
-<body><div class="container">
-<header><h1>&#127934; Wednesday Tennis</h1><div class="subtitle">7:00 AM &middot; Weekly Tracker</div></header>
-<div class="status-bar" id="conn-status">Connecting...</div>
-<div class="stats"><div class="stat-box stat-in"><div class="stat-num" id="count-in">0</div><div class="stat-label">IN</div></div><div class="stat-box stat-maybe"><div class="stat-num" id="count-maybe">0</div><div class="stat-label">MAYBE</div></div><div class="stat-box stat-out"><div class="stat-num" id="count-out">0</div><div class="stat-label">OUT</div></div><div class="stat-box stat-waiting"><div class="stat-num" id="count-waiting">0</div><div class="stat-label">WAITING</div></div></div>
-<div class="card"><div class="section-title">Your Weekly Text</div><textarea class="weekly-text-area" id="weekly-text" readonly></textarea><div style="margin-top:10px"><button class="btn" onclick="copyText()">Copy to clipboard</button></div></div>
-<div class="card share-section"><div class="section-title" style="text-align:center">Share This Tracker</div><button class="btn" onclick="copyLink()">Copy tracker link</button></div>
-<div class="card"><div class="section-title">Add A Player</div><div class="add-player-row"><input type="text" id="new-player" placeholder="New player name..."><button class="btn btn-primary" onclick="addPlayer()">+ Add</button></div></div>
-<div class="filter-tabs"><button class="filter-tab active" onclick="setFilter('all',this)">ALL</button><button class="filter-tab" onclick="setFilter('waiting',this)">WAITING</button><button class="filter-tab" onclick="setFilter('in',this)">IN</button><button class="filter-tab" onclick="setFilter('maybe',this)">MAYBE</button><button class="filter-tab" onclick="setFilter('out',this)">OUT</button></div>
-<div class="player-list" id="player-list"></div>
-<div class="action-row"><button class="btn" onclick="resetReplies()">Reset replies (new week)</button><button class="btn" onclick="clearPlayers()">Clear all players</button></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wednesday Paddle</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f1f4ee; min-height: 100vh; color: #333; }
+  .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+  header { text-align: center; padding: 30px 0 16px; }
+  header h1 { font-size: 2rem; color: #2d5016; }
+  .subtitle { color: #66705c; font-size: 0.9rem; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase; }
+  .openbar { background: #2d5016; color: #fff; border-radius: 12px; padding: 14px 18px; margin-bottom: 12px; text-align: center; font-size: 0.95rem; line-height: 1.4; }
+  .openbar strong { display: block; font-size: 1.15rem; }
+  .openbar.closed { background: #7a6a2c; }
+  .status-bar { background: white; border-radius: 8px; padding: 10px 16px; margin-bottom: 12px; font-size: 0.8rem; color: #888; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .status-bar.connected { color: #2d7d46; }
+  .status-bar.disconnected { color: #c0392b; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0 12px; }
+  .stat-box { background: white; border-radius: 12px; padding: 16px 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .stat-num { font-size: 2rem; font-weight: 700; }
+  .stat-label { font-size: 0.7rem; color: #999; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+  .stat-in .stat-num { color: #2d7d46; }
+  .stat-courts .stat-num { color: #2d5016; }
+  .stat-need .stat-num { color: #b8860b; }
+  .stat-waiting .stat-num { color: #999; }
+  .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .card.join { border: 2px solid #2d5016; }
+  .section-title { font-size: 0.75rem; font-weight: 700; color: #666; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+  .hint { font-size: 0.8rem; color: #888; margin-top: 8px; line-height: 1.4; }
+  .policy { background: #e4ecdc; border-radius: 10px; padding: 12px 14px; font-size: 0.82rem; color: #37492a; line-height: 1.45; margin-bottom: 16px; }
+  .policy-list { margin: 6px 0 2px 20px; padding: 0; }
+  .policy-list li { margin-bottom: 3px; }
+  .policy-note { margin-top: 8px; padding-top: 8px; border-top: 1px solid #cfdcc3; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 0.85rem; color: #444; }
+  .btn:hover { background: #f0f0f0; }
+  .btn-primary { background: #2d5016; color: white; border-color: #2d5016; }
+  .btn-primary:hover { background: #3c6a1f; }
+  .add-player-row { display: flex; gap: 10px; }
+  .add-player-row input { flex: 1; min-width: 0; border: 1px solid #ddd; border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; outline: none; }
+  .add-player-row input:focus { border-color: #2d5016; }
+  .signup-title { font-size: 1rem; font-weight: 700; color: #2d5016; margin-bottom: 12px; }
+  .fld { display: block; font-size: 0.8rem; color: #555; font-weight: 600; margin-bottom: 4px; margin-top: 12px; }
+  .fld input { display: block; width: 100%; margin-top: 4px; border: 1px solid #ddd; border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; outline: none; font-weight: 400; }
+  .fld input:focus { border-color: #2d5016; }
+  .chk { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 0.9rem; color: #333; cursor: pointer; }
+  .chk input { width: 18px; height: 18px; accent-color: #2d5016; }
+  .court { border: 1px solid #a8d5b5; background: #f0faf3; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .court.short { border-color: #f0d78c; background: #fffbf0; }
+  .court-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; font-weight: 700; color: #2d5016; font-size: 0.95rem; margin-bottom: 6px; }
+  .court.short .court-head { color: #8a6508; }
+  .court-tag { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .court ol { list-style: none; }
+  .court li { font-size: 0.95rem; padding: 3px 0; display: flex; gap: 10px; }
+  .court li .num { color: #8a9a80; width: 1.6em; text-align: right; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+  .court li.open { color: #b09a55; font-style: italic; }
+  .nocourts { color: #888; font-size: 0.9rem; text-align: center; padding: 10px 0; }
+  .filter-tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .filter-tab { padding: 6px 14px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 0.8rem; color: #666; }
+  .filter-tab.active { background: #2d5016; color: white; border-color: #2d5016; }
+  .player-list { display: flex; flex-direction: column; gap: 6px; }
+  .empty { background: white; border-radius: 12px; padding: 30px 20px; text-align: center; color: #888; font-size: 0.9rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .player-row { display: flex; align-items: center; padding: 10px 14px; background: #fafafa; border-radius: 8px; border: 1px solid #eee; flex-wrap: wrap; gap: 6px; }
+  .player-row.status-in { background: #f0faf3; border-color: #a8d5b5; }
+  .player-row.status-out { background: #fdf5f5; border-color: #f0b8b8; }
+  .player-name { flex: 1; min-width: 120px; font-size: 0.95rem; color: #333; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .badge { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #9a7b2e; background: #fbf1d6; border-radius: 5px; padding: 2px 6px; }
+  .badge.spot { color: #1f4d3a; background: #d9efe4; }
+  .edit-link { font-size: 0.72rem; color: #7a8472; cursor: pointer; text-decoration: underline; background: none; border: none; padding: 0; }
+  .edit-link:hover { color: #2d5016; }
+  .status-btns { display: flex; gap: 6px; }
+  .status-btn { padding: 4px 14px; border-radius: 6px; border: 1px solid; cursor: pointer; font-size: 0.78rem; font-weight: 600; }
+  .status-btn.in { border-color: #2d7d46; color: #2d7d46; background: white; }
+  .status-btn.in.active { background: #2d7d46; color: white; }
+  .status-btn.out { border-color: #c0392b; color: #c0392b; background: white; }
+  .status-btn.out.active { background: #c0392b; color: white; }
+  .status-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .remove-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.1rem; padding: 2px 4px; }
+  .remove-btn:hover { color: #c0392b; }
+  .weekly-text-area { width: 100%; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #333; background: #fafafa; resize: none; min-height: 150px; font-family: inherit; }
+  .action-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  footer { text-align: center; color: #aaa; font-size: 0.75rem; padding: 20px 0 40px; }
+  @media (max-width: 500px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .status-btn { padding: 4px 10px; font-size: 0.72rem; }
+    .add-player-row { flex-wrap: wrap; }
+    .add-player-row input { min-width: 150px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>&#127955; Wednesday Paddle</h1>
+    <div class="subtitle" id="wed-label">Wednesday &middot; 7:00 AM</div>
+  </header>
+
+  <div class="openbar" id="openbar">Loading&hellip;</div>
+
+  <div class="status-bar" id="conn-status">Connecting...</div>
+
+  <div class="stats">
+    <div class="stat-box stat-in"><div class="stat-num" id="count-in">0</div><div class="stat-label">In</div></div>
+    <div class="stat-box stat-courts"><div class="stat-num" id="count-courts">0</div><div class="stat-label">Courts set</div></div>
+    <div class="stat-box stat-need"><div class="stat-num" id="count-need">0</div><div class="stat-label">Players needed</div></div>
+    <div class="stat-box stat-waiting"><div class="stat-num" id="count-waiting">0</div><div class="stat-label">No reply</div></div>
+  </div>
+
+  <div class="policy">
+    <strong>How this works:</strong>
+    <ol class="policy-list">
+      <li>Add your name and email once. You stay on the list.</li>
+      <li>An email goes out every <strong>Sunday at 2pm</strong>. That's when sign-up opens for Wednesday.</li>
+      <li>Tap <strong>IN</strong> on your name. Courts fill <strong>4 at a time, in the order people say IN</strong>.</li>
+      <li>A second email goes out <strong>Tuesday at 2pm</strong> with the courts.</li>
+    </ol>
+    <div class="policy-note">If the count isn't a multiple of 4, the extra players wait until that court fills. <strong>Can't make it? Tap OUT right away</strong> &mdash; the next person in line takes your spot, and the players affected get an email. If you come back in, you go to the back of the line.</div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" id="courts-title">This Wednesday's courts</div>
+    <div id="courts"></div>
+  </div>
+
+  <div class="card join">
+    <div class="section-title">Join the list</div>
+
+    <div id="add-step">
+      <div class="add-player-row">
+        <input type="text" id="new-player" placeholder="Type a name...">
+        <button class="btn btn-primary" onclick="startSignup()">Add</button>
+      </div>
+      <div class="hint" id="add-msg">New here? Add your name and email to get the Sunday and Tuesday emails. You can add another player too.</div>
+    </div>
+
+    <div id="signup-step" style="display:none">
+      <div class="signup-title" id="signup-title">Set up your emails</div>
+
+      <label class="fld">Email
+        <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
+      </label>
+      <div class="hint">The Sunday sign-up email and the Tuesday courts email go here. Your address is not shown on this page. Leave it blank and you'll be on the list, but you won't get the emails.</div>
+
+      <label class="chk" id="in-now-row"><input type="checkbox" id="in-now" checked> <span id="in-now-label">In this Wednesday</span></label>
+
+      <div class="action-row">
+        <button class="btn btn-primary" onclick="saveSignup()">Add to list</button>
+        <button class="btn" onclick="cancelSignup()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setFilter('all',this)">ALL</button>
+    <button class="filter-tab" onclick="setFilter('in',this)">IN</button>
+    <button class="filter-tab" onclick="setFilter('out',this)">OUT</button>
+    <button class="filter-tab" onclick="setFilter('waiting',this)">NO REPLY</button>
+  </div>
+
+  <div class="player-list" id="player-list"></div>
+  <div class="empty" id="empty-state" style="display:none">No one on the list yet. Add your name above.</div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="section-title">Invite text to share</div>
+    <textarea class="weekly-text-area" id="weekly-text" readonly></textarea>
+    <div class="action-row" style="margin-top:10px">
+      <button class="btn btn-primary" onclick="copyText()">Copy invite</button>
+      <button class="btn" onclick="copyLink()">Copy link only</button>
+    </div>
+  </div>
+
+  <footer>The list resets every Sunday when the email goes out. Names and emails stay.</footer>
+
 </div>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-var firebaseConfig={apiKey:"AIzaSyDBAUizQP-R3anFXDqlLtc6LTKTtxmHQag",authDomain:"wednesday-tennis-tracker.firebaseapp.com",databaseURL:"https://wednesday-tennis-tracker-default-rtdb.firebaseio.com",projectId:"wednesday-tennis-tracker",storageBucket:"wednesday-tennis-tracker.firebasestorage.app",messagingSenderId:"889996084528",appId:"1:889996084528:web:23c578b361d157fe29a2f2"};
-firebase.initializeApp(firebaseConfig);
-var db=firebase.database(),playersRef=db.ref("players");
-var DP=["Sandeep Badhwar","Mitch Black","Jeff Drejza","Jim Dyla","Mats Elmaster","Michael Fishman","John Ford","Jeffery Imerman","Jim Johns","Nick Junttila","Jim Lareau","Arnaud Mangin","Paul Mareski","Kevin Meade","James Moran","Michael Ouaknine","Andy Rifkin","Peter G. Root","Ken Sachs","Steven Schimpke","Jeffrey Stafeil"];
-var F="all",players={};
-db.ref(".info/connected").on("value",function(s){var el=document.getElementById("conn-status");if(s.val()){el.textContent="Live - updates in real time";el.className="status-bar connected";}else{el.textContent="Reconnecting...";el.className="status-bar disconnected";}});
-function nW(){var d=new Date(),dy=d.getDay(),df=(3-dy+7)%7||7;d.setDate(d.getDate()+df);return d.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});}
-function uT(){var u=location.href.split("?")[0].split("#")[0],nl="\n";document.getElementById("weekly-text").value="Hey everyone! Wednesday tennis this week ("+nW()+") at 7am!"+nl+"Tap here - say IN, MAYBE or OUT:"+nl+u+nl+nl+"See you on the court!";}
-function ct(){var c={in:0,maybe:0,out:0,waiting:0};Object.values(players).forEach(function(p){if(!p)return;var s=p.status;if(c[s]!==undefined)c[s]++;});["in","maybe","out","waiting"].forEach(function(s){document.getElementById("count-"+s).textContent=c[s]||0;});}
-function setFilter(f,btn){F=f;document.querySelectorAll(".filter-tab").forEach(function(b){b.classList.remove("active");});btn.classList.add("active");rn();}
-function rn(){var list=document.getElementById("player-list");list.innerHTML="";var entries=Object.entries(players).filter(function(e){return e[1]&&typeof e[1].name==="string"&&e[1].name.length>0;});var sorted=entries.sort(function(a,b){return (a[1].name||"").localeCompare(b[1].name||"");});var filtered=sorted.filter(function(e){return F==="all"||e[1].status===F;});filtered.forEach(function(entry){var key=entry[0],p=entry[1];var st=p.status||"waiting";var row=document.createElement("div");row.className="player-row status-"+st;var nd=document.createElement("div");nd.className="player-name";nd.textContent=p.name;var bd=document.createElement("div");bd.className="status-btns";["in","maybe","out"].forEach(function(s){var b=document.createElement("button");b.className="status-btn "+s+(st===s?" active":"");b.textContent=s==="in"?"IN":s==="maybe"?"?":"OUT";b.onclick=(function(k,stt){return function(){ss(k,stt);};})(key,s);bd.appendChild(b);});var rb=document.createElement("button");rb.className="remove-btn";rb.innerHTML="&times;";rb.onclick=(function(k){return function(){rm(k);};})(key);row.appendChild(nd);row.appendChild(bd);row.appendChild(rb);list.appendChild(row);});ct();}
-function ss(key,status){playersRef.child(key).update({status:status});}
-function rm(key){playersRef.child(key).remove();}
-function addPlayer(){var inp=document.getElementById("new-player"),n=inp.value.trim();if(!n)return;playersRef.push({name:n,status:"waiting"});inp.value="";}
-function resetReplies(){if(!confirm("Reset all replies for new week?"))return;var upd={};Object.keys(players).forEach(function(k){upd[k+"/status"]="waiting";});playersRef.update(upd);}
-function clearPlayers(){if(!confirm("Remove all players?"))return;playersRef.remove();}
-function copyText(){var t=document.getElementById("weekly-text").value;if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){alert("Copied!");});}else{document.getElementById("weekly-text").select();document.execCommand("copy");alert("Copied!");}}
-function copyLink(){var u=location.href.split("?")[0].split("#")[0];if(navigator.clipboard){navigator.clipboard.writeText(u).then(function(){alert("Link copied!");});}else{alert(u);}}
-document.getElementById("new-player").addEventListener("keydown",function(e){if(e.key==="Enter")addPlayer();});
-playersRef.on("value",function(snap){var data=snap.val();if(!data){DP.forEach(function(name){playersRef.push({name:name,status:"waiting"});});}else{players=data;rn();}});
-uT();
-</script></body></html>
+  var firebaseConfig = {
+    apiKey: "AIzaSyDBAUizQP-R3anFXDqlLtc6LTKTtxmHQag",
+    authDomain: "wednesday-tennis-tracker.firebaseapp.com",
+    databaseURL: "https://wednesday-tennis-tracker-default-rtdb.firebaseio.com",
+    projectId: "wednesday-tennis-tracker",
+    storageBucket: "wednesday-tennis-tracker.firebasestorage.app",
+    messagingSenderId: "889996084528",
+    appId: "1:889996084528:web:23c578b361d157fe29a2f2"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  var db = firebase.database();
+  var playersRef  = db.ref("wednesday/players");   // public: name, status, inAt, hasEmail
+  var contactsRef = db.ref("wednesday/contacts");  // private: email (write-only from this page)
+  var metaRef     = db.ref("wednesday/meta");      // openWeek = the Wednesday sign-up is open for
+  var NOW = firebase.database.ServerValue.TIMESTAMP;
+
+  var COURT_SIZE = 4;
+  // No paddle before this date. Until then the page points at this Wednesday.
+  var FIRST_WEDNESDAY = Date.UTC(2026, 9, 21);   // Wednesday, October 21, 2026
+  var F = "all", players = {}, meta = {}, loaded = false, clockOffset = 0;
+
+  db.ref(".info/connected").on("value", function (s) {
+    var el = document.getElementById("conn-status");
+    if (s.val()) { el.textContent = "Live — everyone sees replies as they come in"; el.className = "status-bar connected"; }
+    else { el.textContent = "Reconnecting..."; el.className = "status-bar disconnected"; }
+  });
+  // Use the server's clock, not the phone's, so a wrong date on one device
+  // can't put that person on a different week from everyone else.
+  db.ref(".info/serverTimeOffset").on("value", function (s) { clockOffset = s.val() || 0; render(); });
+
+  // ---- Which Wednesday? Always worked out in Michigan time. ----
+  // Rolls over at noon Wednesday: after play, the page points at next week.
+  function etParts() {
+    var f = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York", hourCycle: "h23",
+      year: "numeric", month: "numeric", day: "numeric", hour: "numeric", weekday: "short"
+    });
+    var o = {};
+    f.formatToParts(new Date(Date.now() + clockOffset)).forEach(function (p) { o[p.type] = p.value; });
+    return {
+      y: +o.year, m: +o.month, d: +o.day, hour: +o.hour,
+      dow: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(o.weekday)
+    };
+  }
+  function wednesdayDate() {            // a UTC-midnight Date standing for the calendar day
+    var t = etParts();
+    var ahead = (3 - t.dow + 7) % 7;
+    if (ahead === 0 && t.hour >= 12) ahead = 7;
+    return new Date(Math.max(Date.UTC(t.y, t.m - 1, t.d + ahead), FIRST_WEDNESDAY));
+  }
+  function opensLabel() {               // the Sunday before, when the email goes out
+    var d = new Date(wednesdayDate().getTime() - 3 * 86400000);
+    return d.toLocaleDateString("en-US", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric" }) + " at 2pm";
+  }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function weekKey() {
+    var d = wednesdayDate();
+    return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate());
+  }
+  function wednesdayLabel() {
+    return wednesdayDate().toLocaleDateString("en-US", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric" });
+  }
+  // Sign-up is open once the Sunday email run has reset the list for this Wednesday.
+  function isOpen() { return !!meta.openWeek && meta.openWeek === weekKey(); }
+
+  // ---- Courts: 4 at a time, in the order people said IN ----
+  function statusOf(p) { return isOpen() ? (p.status || "waiting") : "waiting"; }
+  function lineup() {
+    var ins = Object.entries(players)
+      .filter(function (e) { return e[1] && statusOf(e[1]) === "in"; })
+      .sort(function (a, b) {
+        var d = (a[1].inAt || 0) - (b[1].inAt || 0);
+        return d !== 0 ? d : (a[0] < b[0] ? -1 : 1);
+      });
+    var full = Math.floor(ins.length / COURT_SIZE);
+    var courts = [];
+    for (var i = 0; i < full; i++) courts.push(ins.slice(i * COURT_SIZE, (i + 1) * COURT_SIZE));
+    var waiting = ins.slice(full * COURT_SIZE);
+    var spot = {};
+    ins.forEach(function (e, idx) {
+      spot[e[0]] = { n: idx + 1, court: idx < full * COURT_SIZE ? Math.floor(idx / COURT_SIZE) + 1 : 0 };
+    });
+    return { ins: ins, courts: courts, waiting: waiting, need: waiting.length ? COURT_SIZE - waiting.length : 0, spot: spot };
+  }
+
+  function renderCourts(L) {
+    var box = document.getElementById("courts");
+    box.innerHTML = "";
+    document.getElementById("courts-title").textContent = "Courts for " + wednesdayLabel();
+    if (!isOpen()) {
+      box.innerHTML = '<div class="nocourts">Sign-up opens ' + opensLabel() + ', when the email goes out.</div>';
+      return;
+    }
+    if (!L.ins.length) {
+      box.innerHTML = '<div class="nocourts">No one is in yet. Tap IN on your name to take the first spot.</div>';
+      return;
+    }
+    var n = 0;
+    function block(title, tag, list, short, openSpots) {
+      var c = document.createElement("div");
+      c.className = "court" + (short ? " short" : "");
+      var h = document.createElement("div");
+      h.className = "court-head";
+      var t = document.createElement("span"); t.textContent = title;
+      var g = document.createElement("span"); g.className = "court-tag"; g.textContent = tag;
+      h.appendChild(t); h.appendChild(g);
+      var ol = document.createElement("ol");
+      list.forEach(function (e) {
+        n++;
+        var li = document.createElement("li");
+        var num = document.createElement("span"); num.className = "num"; num.textContent = n + ".";
+        var nm = document.createElement("span"); nm.textContent = e[1].name;
+        li.appendChild(num); li.appendChild(nm);
+        ol.appendChild(li);
+      });
+      for (var i = 0; i < openSpots; i++) {
+        var li2 = document.createElement("li");
+        li2.className = "open";
+        var num2 = document.createElement("span"); num2.className = "num"; num2.textContent = (n + i + 1) + ".";
+        var nm2 = document.createElement("span"); nm2.textContent = "open spot";
+        li2.appendChild(num2); li2.appendChild(nm2);
+        ol.appendChild(li2);
+      }
+      c.appendChild(h); c.appendChild(ol);
+      box.appendChild(c);
+    }
+    L.courts.forEach(function (court, i) { block("Court " + (i + 1), "Set", court, false, 0); });
+    if (L.waiting.length) {
+      block("Waiting for Court " + (L.courts.length + 1),
+            "Need " + L.need + " more " + (L.need === 1 ? "player" : "players"), L.waiting, true, L.need);
+    }
+  }
+
+  function renderOpenBar() {
+    var el = document.getElementById("openbar");
+    document.getElementById("wed-label").textContent = wednesdayLabel() + " · 7:00 AM";
+    if (!loaded) { el.className = "openbar closed"; el.textContent = "Loading…"; return; }
+    if (isOpen()) {
+      el.className = "openbar";
+      el.innerHTML = "<strong>Sign-up is open</strong>Find your name and tap IN. Courts fill 4 at a time, in the order people say IN.";
+    } else {
+      el.className = "openbar closed";
+      el.innerHTML = "<strong>Sign-up opens " + opensLabel() + "</strong>That's when the email for " + wednesdayLabel() +
+        " goes out. You can add your name to the list any time.";
+    }
+  }
+
+  function setFilter(f, btn) {
+    F = f;
+    document.querySelectorAll(".filter-tab").forEach(function (b) { b.classList.remove("active"); });
+    btn.classList.add("active");
+    render();
+  }
+
+  function render() {
+    var open = isOpen();
+    var L = lineup();
+    renderOpenBar();
+    renderCourts(L);
+
+    var all = Object.entries(players).filter(function (e) { return e[1] && typeof e[1].name === "string" && e[1].name; });
+    var sorted = all.sort(function (a, b) { return a[1].name.localeCompare(b[1].name); });
+    var filtered = sorted.filter(function (e) { return F === "all" || statusOf(e[1]) === F; });
+
+    var noReply = 0;
+    all.forEach(function (e) { if (statusOf(e[1]) === "waiting") noReply++; });
+    document.getElementById("count-in").textContent = L.ins.length;
+    document.getElementById("count-courts").textContent = L.courts.length;
+    document.getElementById("count-need").textContent = L.need;
+    document.getElementById("count-waiting").textContent = noReply;
+
+    document.getElementById("empty-state").style.display = (loaded && !sorted.length) ? "block" : "none";
+
+    var list = document.getElementById("player-list");
+    list.innerHTML = "";
+    filtered.forEach(function (entry) {
+      var key = entry[0], p = entry[1], st = statusOf(p);
+      var row = document.createElement("div");
+      row.className = "player-row status-" + st;
+
+      var nd = document.createElement("div");
+      nd.className = "player-name";
+      var nameSpan = document.createElement("span");
+      nameSpan.textContent = p.name;
+      nd.appendChild(nameSpan);
+
+      if (st === "in" && L.spot[key]) {
+        var sp = document.createElement("span");
+        sp.className = "badge spot";
+        sp.textContent = L.spot[key].court ? "Court " + L.spot[key].court : "Waiting • #" + L.spot[key].n;
+        nd.appendChild(sp);
+      }
+      if (!p.hasEmail) {
+        var badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = "no email";
+        nd.appendChild(badge);
+      }
+      var edit = document.createElement("button");
+      edit.className = "edit-link";
+      edit.textContent = p.hasEmail ? "edit email" : "add email";
+      edit.onclick = function () { editContact(key, p.name); };
+      nd.appendChild(edit);
+
+      var bd = document.createElement("div");
+      bd.className = "status-btns";
+      ["in", "out"].forEach(function (s) {
+        var b = document.createElement("button");
+        b.className = "status-btn " + s + (st === s ? " active" : "");
+        b.textContent = s === "in" ? "IN" : "OUT";
+        b.disabled = !open;
+        if (!open) b.title = "Sign-up opens " + opensLabel();
+        b.onclick = function () { setStatus(key, s); };
+        bd.appendChild(b);
+      });
+
+      var rb = document.createElement("button");
+      rb.className = "remove-btn";
+      rb.innerHTML = "&times;";
+      rb.title = "Remove from the list for good";
+      rb.onclick = function () { removePlayer(key, p.name); };
+
+      row.appendChild(nd);
+      row.appendChild(bd);
+      row.appendChild(rb);
+      list.appendChild(row);
+    });
+
+    // signup bits that depend on open/closed
+    document.getElementById("in-now-row").style.display = open ? "flex" : "none";
+    document.getElementById("in-now-label").textContent = "In for " + wednesdayLabel();
+    updateInviteText();
+  }
+
+  // ---- Replies ----
+  function setStatus(key, status) {
+    if (!isOpen()) return;
+    var p = players[key];
+    if (!p) return;
+    var cur = statusOf(p);
+    if (cur === status) return;                    // tapping IN again never moves you
+    if (status === "in") {
+      playersRef.child(key).update({ status: "in", inAt: NOW });   // server time = your place in line
+      return;
+    }
+    if (cur === "in") {
+      var s = lineup().spot[key];
+      var where = s && s.court ? p.name + " is in Court " + s.court + "." : p.name + " is #" + (s ? s.n : "?") + " in line.";
+      if (!confirm(where + "\n\nDropping gives that spot to the next person in line. " +
+                   "Coming back in later means going to the back of the line.\n\nDrop out?")) return;
+    }
+    playersRef.child(key).update({ status: "out", inAt: null });
+  }
+  function removePlayer(key, name) {
+    if (!confirm("Remove " + name + " from the list for good?\n\nThey will stop getting the emails. " +
+                 "To just skip this week, tap OUT instead.")) return;
+    playersRef.child(key).remove();
+    contactsRef.child(key).remove();
+  }
+
+  function validEmail(v) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v); }
+  function tidy(v) { return (v || "").trim().replace(/\s+/g, " "); }
+  function onList(name) {
+    return Object.values(players).some(function (p) {
+      return p && (p.name || "").toLowerCase() === name.toLowerCase();
+    });
+  }
+
+  // ---- Sign-up: each person adds their own name and email ----
+  function startSignup() {
+    var el = document.getElementById("new-player"), name = tidy(el.value);
+    if (!name) { el.focus(); return; }
+    if (onList(name)) {
+      document.getElementById("add-msg").textContent = name + " is already on the list — find the name below.";
+      el.select();
+      return;
+    }
+    document.getElementById("signup-title").textContent = "Set up " + name;
+    document.getElementById("add-step").style.display = "none";
+    document.getElementById("signup-step").style.display = "block";
+    document.getElementById("signup-email").focus();
+  }
+  function cancelSignup() {
+    document.getElementById("signup-step").style.display = "none";
+    document.getElementById("add-step").style.display = "block";
+    document.getElementById("signup-email").value = "";
+    document.getElementById("in-now").checked = true;
+  }
+  function addPerson(name, email, inNow) {
+    var rec = { name: name, status: inNow ? "in" : "waiting", hasEmail: !!email };
+    if (inNow) rec.inAt = NOW;
+    var ref = playersRef.push(rec);
+    if (email) contactsRef.child(ref.key).set({ email: email });
+  }
+  function saveSignup() {
+    var name = tidy(document.getElementById("new-player").value);
+    if (!name) { cancelSignup(); return; }
+    var email = document.getElementById("signup-email").value.trim();
+    if (email && !validEmail(email)) { alert("That email doesn't look right. Fix it, or leave it blank."); return; }
+    if (!email && !confirm("No email means no Sunday or Tuesday emails for " + name + ".\n\nAdd without an email?")) return;
+    addPerson(name, email, isOpen() && document.getElementById("in-now").checked);
+    document.getElementById("new-player").value = "";
+    document.getElementById("add-msg").textContent = name + " is on the list.";
+    cancelSignup();
+  }
+  function editContact(key, name) {
+    // Emails are kept private, so the current one can't be shown here.
+    var v = prompt("Email for " + name + " (for the Sunday and Tuesday emails).\nLeave blank to remove it and stop the emails:", "");
+    if (v === null) return;
+    v = v.trim();
+    if (v && !validEmail(v)) { alert("That email doesn't look right — nothing changed."); return; }
+    if (v) {
+      contactsRef.child(key).set({ email: v });
+      playersRef.child(key).update({ hasEmail: true });
+    } else {
+      contactsRef.child(key).remove();
+      playersRef.child(key).update({ hasEmail: false });
+    }
+  }
+
+  function pageUrl() { return location.href.split("?")[0].split("#")[0]; }
+  function updateInviteText() {
+    var nl = "\n";
+    document.getElementById("weekly-text").value =
+      "Wednesday 7am is paddle now, and there's a new sign-up page." + nl + nl +
+      "Add your name and email here (one time):" + nl + pageUrl() + nl + nl +
+      "Every Sunday at 2pm you'll get an email to sign up for that Wednesday. " +
+      "Courts fill 4 at a time in the order people say IN. " +
+      "Tuesday at 2pm a second email goes out with the courts." + nl + nl +
+      "If you're not on the list, you won't get the emails.";
+  }
+  function copyText() {
+    var t = document.getElementById("weekly-text").value;
+    if (navigator.clipboard) { navigator.clipboard.writeText(t).then(function () { alert("Invite copied — paste it into your group text."); }); }
+    else { document.getElementById("weekly-text").select(); document.execCommand("copy"); alert("Invite copied."); }
+  }
+  function copyLink() {
+    var u = pageUrl();
+    if (navigator.clipboard) { navigator.clipboard.writeText(u).then(function () { alert("Link copied."); }); }
+    else { alert(u); }
+  }
+
+  document.getElementById("new-player").addEventListener("keydown", function (e) { if (e.key === "Enter") startSignup(); });
+
+  var gotPlayers = false, gotMeta = false;
+  playersRef.on("value", function (snap) { players = snap.val() || {}; gotPlayers = true; loaded = gotPlayers && gotMeta; render(); });
+  metaRef.on("value", function (snap) { meta = snap.val() || {}; gotMeta = true; loaded = gotPlayers && gotMeta; render(); });
+
+  // A tab left open still flips over at noon Wednesday.
+  setInterval(render, 60000);
+  render();
+</script>
+</body>
+</html>
