@@ -112,7 +112,7 @@
     <strong>How this works:</strong>
     <ol class="policy-list">
       <li>Add your name and email once. You stay on the list.</li>
-      <li>An email goes out every <strong>Sunday at 2pm</strong>. That's when sign-up opens for Wednesday.</li>
+      <li>An email goes out every <strong>Thursday at 8am</strong>, the morning after paddle. That's when sign-up opens for the next Wednesday. A reminder follows <strong>Sunday at 2pm</strong>.</li>
       <li>Tap <strong>IN</strong> on your name. Courts fill <strong>4 at a time, in the order people say IN</strong>.</li>
       <li>A second email goes out <strong>Tuesday at 2pm</strong> with the courts.</li>
     </ol>
@@ -132,7 +132,7 @@
         <input type="text" id="new-player" placeholder="Type a name...">
         <button class="btn btn-primary" onclick="startSignup()">Add</button>
       </div>
-      <div class="hint" id="add-msg">New here? Add your name and email to get the Sunday and Tuesday emails. You can add another player too.</div>
+      <div class="hint" id="add-msg">New here? Add your name and email to get the Thursday, Sunday and Tuesday emails. You can add another player too.</div>
     </div>
 
     <div id="signup-step" style="display:none">
@@ -141,7 +141,7 @@
       <label class="fld">Email
         <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
       </label>
-      <div class="hint">The Sunday sign-up email and the Tuesday courts email go here. Your address is not shown on this page. Leave it blank and you'll be on the list, but you won't get the emails.</div>
+      <div class="hint">The Thursday sign-up email, the Sunday reminder and the Tuesday courts email go here. Your address is not shown on this page. Leave it blank and you'll be on the list, but you won't get the emails.</div>
 
       <label class="chk" id="in-now-row"><input type="checkbox" id="in-now" checked> <span id="in-now-label">In this Wednesday</span></label>
 
@@ -171,7 +171,7 @@
     </div>
   </div>
 
-  <footer>The list resets every Sunday when the email goes out. Names and emails stay.</footer>
+  <footer>The list resets every Thursday morning when the sign-up email goes out. Names and emails stay.</footer>
 
 </div>
 
@@ -229,9 +229,12 @@
     if (ahead === 0 && t.hour >= 12) ahead = 7;
     return new Date(Math.max(Date.UTC(t.y, t.m - 1, t.d + ahead), FIRST_WEDNESDAY));
   }
-  function opensLabel() {               // the Sunday before, when the email goes out
-    var d = new Date(wednesdayDate().getTime() - 3 * 86400000);
-    return d.toLocaleDateString("en-US", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric" }) + " at 2pm";
+  var FIRST_THURSDAY = Date.UTC(2026, 9, 22);    // Thursday, October 22, 2026 - first Thursday sign-up email
+  function opensLabel() {               // the Thursday before (8am), when the sign-up email goes out
+    var thu = wednesdayDate().getTime() - 6 * 86400000;
+    var opens = thu >= FIRST_THURSDAY ? new Date(thu) : new Date(wednesdayDate().getTime() - 3 * 86400000);
+    return opens.toLocaleDateString("en-US", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric" }) +
+      (thu >= FIRST_THURSDAY ? " at 8am" : " at 2pm");
   }
   function pad(n) { return (n < 10 ? "0" : "") + n; }
   function weekKey() {
@@ -241,7 +244,7 @@
   function wednesdayLabel() {
     return wednesdayDate().toLocaleDateString("en-US", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric" });
   }
-  // Sign-up is open once the Sunday email run has reset the list for this Wednesday.
+  // Sign-up is open once the Thursday (or Sunday) email run has reset the list for this Wednesday.
   function isOpen() { return !!meta.openWeek && meta.openWeek === weekKey(); }
 
   // ---- Courts: 4 at a time, in the order people said IN ----
@@ -478,7 +481,7 @@
     if (!name) { cancelSignup(); return; }
     var email = document.getElementById("signup-email").value.trim();
     if (email && !validEmail(email)) { alert("That email doesn't look right. Fix it, or leave it blank."); return; }
-    if (!email && !confirm("No email means no Sunday or Tuesday emails for " + name + ".\n\nAdd without an email?")) return;
+    if (!email && !confirm("No email means no sign-up or courts emails for " + name + ".\n\nAdd without an email?")) return;
     addPerson(name, email, isOpen() && document.getElementById("in-now").checked);
     document.getElementById("new-player").value = "";
     document.getElementById("add-msg").textContent = name + " is on the list.";
@@ -486,7 +489,7 @@
   }
   function editContact(key, name) {
     // Emails are kept private, so the current one can't be shown here.
-    var v = prompt("Email for " + name + " (for the Sunday and Tuesday emails).\nLeave blank to remove it and stop the emails:", "");
+    var v = prompt("Email for " + name + " (for the sign-up and courts emails).\nLeave blank to remove it and stop the emails:", "");
     if (v === null) return;
     v = v.trim();
     if (v && !validEmail(v)) { alert("That email doesn't look right — nothing changed."); return; }
@@ -505,7 +508,7 @@
     document.getElementById("weekly-text").value =
       "Wednesday 7am is paddle now, and there's a new sign-up page." + nl + nl +
       "Add your name and email here (one time):" + nl + pageUrl() + nl + nl +
-      "Every Sunday at 2pm you'll get an email to sign up for that Wednesday. " +
+      "Every Thursday at 8am you'll get an email to sign up for the next Wednesday, with a reminder Sunday at 2pm. " +
       "Courts fill 4 at a time in the order people say IN. " +
       "Tuesday at 2pm a second email goes out with the courts." + nl + nl +
       "If you're not on the list, you won't get the emails.";
