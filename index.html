@@ -76,8 +76,8 @@
   .status-btn.out { border-color: #c0392b; color: #c0392b; background: white; }
   .status-btn.out.active { background: #c0392b; color: white; }
   .status-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-  .remove-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.1rem; padding: 2px 4px; }
-  .remove-btn:hover { color: #c0392b; }
+  .remove-link { font-size: 0.72rem; color: #a08a8a; cursor: pointer; text-decoration: underline; background: none; border: none; padding: 0; }
+  .remove-link:hover { color: #c0392b; }
   .weekly-text-area { width: 100%; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; font-size: 0.9rem; color: #333; background: #fafafa; resize: none; min-height: 150px; font-family: inherit; }
   .action-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
   footer { text-align: center; color: #aaa; font-size: 0.75rem; padding: 20px 0 40px; }
@@ -385,6 +385,12 @@
       edit.textContent = p.hasEmail ? "edit email" : "add email";
       edit.onclick = function () { editContact(key, p.name); };
       nd.appendChild(edit);
+      var rm = document.createElement("button");
+      rm.className = "remove-link";
+      rm.textContent = "remove from list";
+      rm.title = "Take this name off the list for good (to skip one week, tap OUT)";
+      rm.onclick = function () { removePlayer(key, p.name); };
+      nd.appendChild(rm);
 
       var bd = document.createElement("div");
       bd.className = "status-btns";
@@ -398,15 +404,9 @@
         bd.appendChild(b);
       });
 
-      var rb = document.createElement("button");
-      rb.className = "remove-btn";
-      rb.innerHTML = "&times;";
-      rb.title = "Remove from the list for good";
-      rb.onclick = function () { removePlayer(key, p.name); };
 
       row.appendChild(nd);
       row.appendChild(bd);
-      row.appendChild(rb);
       list.appendChild(row);
     });
 
