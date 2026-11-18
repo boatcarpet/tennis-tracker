@@ -46,6 +46,10 @@
   .fld input:focus { border-color: #2d5016; }
   .chk { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 0.9rem; color: #333; cursor: pointer; }
   .chk input { width: 18px; height: 18px; accent-color: #2d5016; }
+  .contact-toggle { display: flex; gap: 16px; margin: 8px 0 4px; }
+  .toggle-opt { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; color: #333; cursor: pointer; }
+  .toggle-opt input { accent-color: #2d5016; width: 16px; height: 16px; }
+  .badge.text { color: #1b4d6e; background: #d9ecf4; }
   .court { border: 1px solid #a8d5b5; background: #f0faf3; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
   .court.short { border-color: #f0d78c; background: #fffbf0; }
   .court-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; font-weight: 700; color: #2d5016; font-size: 0.95rem; margin-bottom: 6px; }
@@ -136,12 +140,28 @@
     </div>
 
     <div id="signup-step" style="display:none">
-      <div class="signup-title" id="signup-title">Set up your emails</div>
+      <div class="signup-title" id="signup-title">Set up your notifications</div>
 
-      <label class="fld">Email
-        <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
-      </label>
-      <div class="hint">The Thursday sign-up email, the Sunday reminder and the Tuesday courts email go here. Your address is not shown on this page. Leave it blank and you'll be on the list, but you won't get the emails.</div>
+      <div style="margin-bottom:4px; font-size:0.8rem; color:#555; font-weight:600;">How should we reach you?</div>
+      <div class="contact-toggle">
+        <label class="toggle-opt"><input type="radio" name="contact-method" value="email" checked onchange="toggleContactMethod()"> Email</label>
+        <label class="toggle-opt"><input type="radio" name="contact-method" value="text" onchange="toggleContactMethod()"> Text message</label>
+      </div>
+
+      <div id="email-field">
+        <label class="fld">Email
+          <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
+        </label>
+        <div class="hint">The Thursday sign-up email, the Sunday reminder and the Tuesday courts email go here. Your address is not shown on this page.</div>
+      </div>
+
+      <div id="phone-field" style="display:none">
+        <label class="fld">Phone number
+          <input type="tel" id="signup-phone" placeholder="(248) 555-1234" autocomplete="tel">
+        </label>
+        <div class="hint">You'll get the Thursday sign-up, Sunday reminder and Tuesday courts as a text message. Your number is not shown on this page.</div>
+        <div class="hint" style="margin-top:4px; font-size:0.75rem; color:#999;">By entering your number you agree to receive weekly game invite texts. Reply STOP to opt out.</div>
+      </div>
 
       <label class="chk" id="in-now-row"><input type="checkbox" id="in-now" checked> <span id="in-now-label">In this Wednesday</span></label>
 
@@ -374,15 +394,21 @@
         sp.textContent = L.spot[key].court ? "Court " + L.spot[key].court : "Waiting • #" + L.spot[key].n;
         nd.appendChild(sp);
       }
-      if (!p.hasEmail) {
+      var cm = p.contactMethod || (p.hasEmail ? "email" : "none");
+      if (cm === "text") {
+        var badge = document.createElement("span");
+        badge.className = "badge text";
+        badge.textContent = "text";
+        nd.appendChild(badge);
+      } else if (cm === "none" && !p.hasEmail) {
         var badge = document.createElement("span");
         badge.className = "badge";
-        badge.textContent = "no email";
+        badge.textContent = "no contact";
         nd.appendChild(badge);
       }
       var edit = document.createElement("button");
       edit.className = "edit-link";
-      edit.textContent = p.hasEmail ? "edit email" : "add email";
+      edit.textContent = cm !== "none" ? "change contact" : "add contact";
       edit.onclick = function () { editContact(key, p.name); };
       nd.appendChild(edit);
       var rm = document.createElement("button");
@@ -443,14 +469,25 @@
   }
 
   function validEmail(v) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v); }
+  function validPhone(v) { return /^\+?[\d\s\-().]{7,}$/.test(v); }
+  function cleanPhone(v) { return v.replace(/[^\d+]/g, "").replace(/^(\d{10})$/, "+1$1").replace(/^1(\d{10})$/, "+1$1"); }
   function tidy(v) { return (v || "").trim().replace(/\s+/g, " "); }
   function onList(name) {
     return Object.values(players).some(function (p) {
       return p && (p.name || "").toLowerCase() === name.toLowerCase();
     });
   }
+  function selectedMethod() {
+    var r = document.querySelector('input[name="contact-method"]:checked');
+    return r ? r.value : "email";
+  }
+  function toggleContactMethod() {
+    var m = selectedMethod();
+    document.getElementById("email-field").style.display = m === "email" ? "block" : "none";
+    document.getElementById("phone-field").style.display = m === "text" ? "block" : "none";
+  }
 
-  // ---- Sign-up: each person adds their own name and email ----
+  // ---- Sign-up: each person adds their own name and email or phone ----
   function startSignup() {
     var el = document.getElementById("new-player"), name = tidy(el.value);
     if (!name) { el.focus(); return; }
@@ -462,43 +499,82 @@
     document.getElementById("signup-title").textContent = "Set up " + name;
     document.getElementById("add-step").style.display = "none";
     document.getElementById("signup-step").style.display = "block";
+    // Reset to email default
+    document.querySelector('input[name="contact-method"][value="email"]').checked = true;
+    toggleContactMethod();
     document.getElementById("signup-email").focus();
   }
   function cancelSignup() {
     document.getElementById("signup-step").style.display = "none";
     document.getElementById("add-step").style.display = "block";
     document.getElementById("signup-email").value = "";
+    document.getElementById("signup-phone").value = "";
     document.getElementById("in-now").checked = true;
   }
-  function addPerson(name, email, inNow) {
-    var rec = { name: name, status: inNow ? "in" : "waiting", hasEmail: !!email };
+  function addPerson(name, email, phone, method, inNow) {
+    var rec = { name: name, status: inNow ? "in" : "waiting", hasEmail: !!email, hasText: !!phone, contactMethod: method || "none" };
     if (inNow) rec.inAt = NOW;
     var ref = playersRef.push(rec);
-    if (email) contactsRef.child(ref.key).set({ email: email });
+    var contact = {};
+    if (email) contact.email = email;
+    if (phone) contact.phone = phone;
+    if (method) contact.method = method;
+    if (Object.keys(contact).length) contactsRef.child(ref.key).set(contact);
   }
   function saveSignup() {
     var name = tidy(document.getElementById("new-player").value);
     if (!name) { cancelSignup(); return; }
-    var email = document.getElementById("signup-email").value.trim();
-    if (email && !validEmail(email)) { alert("That email doesn't look right. Fix it, or leave it blank."); return; }
-    if (!email && !confirm("No email means no sign-up or courts emails for " + name + ".\n\nAdd without an email?")) return;
-    addPerson(name, email, isOpen() && document.getElementById("in-now").checked);
+    var method = selectedMethod();
+    var email = "", phone = "";
+    if (method === "email") {
+      email = document.getElementById("signup-email").value.trim();
+      if (email && !validEmail(email)) { alert("That email doesn't look right. Fix it, or leave it blank."); return; }
+      if (!email && !confirm("No email means no sign-up or courts notifications for " + name + ".\n\nAdd without contact info?")) return;
+    } else {
+      phone = document.getElementById("signup-phone").value.trim();
+      if (phone && !validPhone(phone)) { alert("That phone number doesn't look right. Fix it, or leave it blank."); return; }
+      if (phone) phone = cleanPhone(phone);
+      if (!phone && !confirm("No phone number means no sign-up or courts notifications for " + name + ".\n\nAdd without contact info?")) return;
+    }
+    var actualMethod = (email || phone) ? method : "none";
+    addPerson(name, email, phone, actualMethod, isOpen() && document.getElementById("in-now").checked);
     document.getElementById("new-player").value = "";
     document.getElementById("add-msg").textContent = name + " is on the list.";
     cancelSignup();
   }
   function editContact(key, name) {
-    // Emails are kept private, so the current one can't be shown here.
-    var v = prompt("Email for " + name + " (for the sign-up and courts emails).\nLeave blank to remove it and stop the emails:", "");
-    if (v === null) return;
-    v = v.trim();
-    if (v && !validEmail(v)) { alert("That email doesn't look right — nothing changed."); return; }
-    if (v) {
-      contactsRef.child(key).set({ email: v });
-      playersRef.child(key).update({ hasEmail: true });
-    } else {
+    var p = players[key];
+    var curMethod = p && p.contactMethod || (p && p.hasEmail ? "email" : "none");
+    var choice = prompt(
+      "Contact method for " + name + ":\n\n" +
+      "Type EMAIL to get the weekly emails,\n" +
+      "or TEXT to get a text message instead.\n" +
+      "Type REMOVE to stop notifications.\n\n" +
+      "(Currently: " + (curMethod === "none" ? "none" : curMethod) + ")", curMethod === "none" ? "" : curMethod);
+    if (choice === null) return;
+    choice = choice.trim().toLowerCase();
+    if (choice === "remove" || choice === "") {
       contactsRef.child(key).remove();
-      playersRef.child(key).update({ hasEmail: false });
+      playersRef.child(key).update({ hasEmail: false, hasText: false, contactMethod: "none" });
+      return;
+    }
+    if (choice === "email") {
+      var email = prompt("Email for " + name + ":", "");
+      if (email === null) return;
+      email = email.trim();
+      if (!email || !validEmail(email)) { alert("That email doesn't look right — nothing changed."); return; }
+      contactsRef.child(key).set({ email: email, method: "email" });
+      playersRef.child(key).update({ hasEmail: true, hasText: false, contactMethod: "email" });
+    } else if (choice === "text") {
+      var phone = prompt("Phone number for " + name + ":", "");
+      if (phone === null) return;
+      phone = phone.trim();
+      if (!phone || !validPhone(phone)) { alert("That phone number doesn't look right — nothing changed."); return; }
+      phone = cleanPhone(phone);
+      contactsRef.child(key).set({ phone: phone, method: "text" });
+      playersRef.child(key).update({ hasEmail: false, hasText: true, contactMethod: "text" });
+    } else {
+      alert("Type EMAIL, TEXT, or REMOVE.");
     }
   }
 
