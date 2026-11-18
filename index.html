@@ -50,6 +50,11 @@
   .toggle-opt { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; color: #333; cursor: pointer; }
   .toggle-opt input { accent-color: #2d5016; width: 16px; height: 16px; }
   .badge.text { color: #1b4d6e; background: #d9ecf4; }
+  .text-banner { display: flex; align-items: center; gap: 12px; background: #e8f4fc; border: 1px solid #b3d9f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+  .text-banner-icon { font-size: 1.6rem; flex: 0 0 auto; }
+  .text-banner-body { flex: 1; font-size: 0.85rem; color: #1b4d6e; line-height: 1.4; }
+  .text-banner-body strong { display: block; font-size: 0.95rem; margin-bottom: 2px; }
+  .text-banner .btn-primary { white-space: nowrap; flex: 0 0 auto; }
   .court { border: 1px solid #a8d5b5; background: #f0faf3; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
   .court.short { border-color: #f0d78c; background: #fffbf0; }
   .court-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; font-weight: 700; color: #2d5016; font-size: 0.95rem; margin-bottom: 6px; }
@@ -112,10 +117,19 @@
     <div class="stat-box stat-waiting"><div class="stat-num" id="count-waiting">0</div><div class="stat-label">No reply</div></div>
   </div>
 
+  <div class="text-banner" id="text-banner">
+    <div class="text-banner-icon">&#128242;</div>
+    <div class="text-banner-body">
+      <strong>Want a text instead of email?</strong>
+      <div>You can now get the weekly invite by text message. Tap the button to switch.</div>
+    </div>
+    <button class="btn btn-primary" onclick="switchToText()">Switch to text</button>
+  </div>
+
   <div class="policy">
     <strong>How this works:</strong>
     <ol class="policy-list">
-      <li>Add your name and email once. You stay on the list.</li>
+      <li>Add your name and email (or phone number for texts) once. You stay on the list.</li>
       <li>An email goes out every <strong>Thursday at 8am</strong>, the morning after paddle. That's when sign-up opens for the next Wednesday. A reminder follows <strong>Sunday at 2pm</strong>.</li>
       <li>Tap <strong>IN</strong> on your name. Courts fill <strong>4 at a time, in the order people say IN</strong>.</li>
       <li>A second email goes out <strong>Tuesday at 2pm</strong> with the courts.</li>
@@ -136,7 +150,7 @@
         <input type="text" id="new-player" placeholder="Type a name...">
         <button class="btn btn-primary" onclick="startSignup()">Add</button>
       </div>
-      <div class="hint" id="add-msg">New here? Add your name and email to get the Thursday, Sunday and Tuesday emails. You can add another player too.</div>
+      <div class="hint" id="add-msg">New here? Add your name to get the Thursday, Sunday and Tuesday invites by email or text. You can add another player too.</div>
     </div>
 
     <div id="signup-step" style="display:none">
@@ -542,6 +556,25 @@
     document.getElementById("add-msg").textContent = name + " is on the list.";
     cancelSignup();
   }
+  function switchToText() {
+    var name = prompt("To switch to text, type your name as it appears on the list:");
+    if (!name) return;
+    name = name.trim();
+    var found = null;
+    Object.entries(players).forEach(function (e) {
+      if (e[1] && (e[1].name || "").toLowerCase() === name.toLowerCase()) found = e[0];
+    });
+    if (!found) { alert("\"" + name + "\" is not on the list. Check the spelling and try again."); return; }
+    var phone = prompt("Phone number for " + players[found].name + ":\n\nYou'll get the Thursday, Sunday and Tuesday invites as a text instead of email.");
+    if (phone === null) return;
+    phone = phone.trim();
+    if (!phone || !validPhone(phone)) { alert("That phone number doesn't look right — nothing changed."); return; }
+    phone = cleanPhone(phone);
+    contactsRef.child(found).set({ phone: phone, method: "text" });
+    playersRef.child(found).update({ hasEmail: false, hasText: true, contactMethod: "text" });
+    alert(players[found].name + " is now set to get texts. You can change back any time with \"change contact\" next to your name.");
+  }
+
   function editContact(key, name) {
     var p = players[key];
     var curMethod = p && p.contactMethod || (p && p.hasEmail ? "email" : "none");
