@@ -121,7 +121,7 @@
     <div class="text-banner-icon">&#128242;</div>
     <div class="text-banner-body">
       <strong>Want a text instead of email?</strong>
-      <div>You can now get the weekly invite by text message. Tap the button to switch.</div>
+      <div>You can now get the weekly invite by text from <strong>(313) 751-3150</strong>. Save that number so you know it's the paddle group.</div>
     </div>
     <button class="btn btn-primary" onclick="switchToText()">Switch to text</button>
   </div>
@@ -173,7 +173,7 @@
         <label class="fld">Phone number
           <input type="tel" id="signup-phone" placeholder="(248) 555-1234" autocomplete="tel">
         </label>
-        <div class="hint">You'll get the Thursday sign-up, Sunday reminder and Tuesday courts as a text message. Your number is not shown on this page.</div>
+        <div class="hint">You'll get the Thursday sign-up, Sunday reminder and Tuesday courts as a text from <strong>(313) 751-3150</strong>. Save that number so you know it's the paddle group. Your number is not shown on this page.</div>
         <div class="hint" style="margin-top:4px; font-size:0.75rem; color:#999;">By entering your number you agree to receive weekly game invite texts. Reply STOP to opt out.</div>
       </div>
 
@@ -572,7 +572,7 @@
     phone = cleanPhone(phone);
     contactsRef.child(found).set({ phone: phone, method: "text" });
     playersRef.child(found).update({ hasEmail: false, hasText: true, contactMethod: "text" });
-    alert(players[found].name + " is now set to get texts. You can change back any time with \"change contact\" next to your name.");
+    alert(players[found].name + " is now set to get texts from (313) 751-3150. Save that number so you know it's the paddle group.\n\nYou can change back any time with \"change contact\" next to your name.");
   }
 
   function editContact(key, name) {
